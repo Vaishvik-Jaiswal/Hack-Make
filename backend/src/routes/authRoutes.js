@@ -9,4 +9,7 @@ router.post('/send-otp', authController.sendOTP);
 // Verify OTP and authenticate user
 router.post('/verify-otp', authController.verifyOTP);
 
+// Login as buyer or seller after role selection
+router.post('/login', authController.loginAsRole);
+
 module.exports = router;

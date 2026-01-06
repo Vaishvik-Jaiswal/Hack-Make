@@ -63,7 +63,7 @@ exports.sendOTP = async (req, res) => {
   }
 };
 
-// Verify OTP and authenticate user
+// Verify OTP (just validate, don't create user)
 exports.verifyOTP = async (req, res) => {
   try {
     const { phone, otp } = req.body;
@@ -118,48 +118,14 @@ exports.verifyOTP = async (req, res) => {
         });
       }
 
-      // OTP verified successfully, check if seller exists
-      const [sellers] = await connection.execute(
-        'SELECT id, phone, shop_name, artisan_name, district, udyam_number, is_profile_complete FROM sellers WHERE phone = ?',
-        [cleanPhone]
-      );
-
-      let seller;
-      if (sellers.length === 0) {
-        // Create new seller entry
-        const [result] = await connection.execute(
-          'INSERT INTO sellers (phone, is_profile_complete) VALUES (?, false)',
-          [cleanPhone]
-        );
-        seller = {
-          id: result.insertId,
-          phone: cleanPhone,
-          shop_name: null,
-          artisan_name: null,
-          district: null,
-          udyam_number: null,
-          is_profile_complete: false,
-        };
-      } else {
-        seller = sellers[0];
-      }
-
-      // Delete used OTP
+      // OTP verified successfully, delete OTP
       await connection.execute('DELETE FROM otp_codes WHERE phone = ?', [cleanPhone]);
 
       res.status(200).json({
         success: true,
         message: 'OTP verified successfully',
         data: {
-          seller: {
-            id: seller.id,
-            phone: seller.phone,
-            shop_name: seller.shop_name,
-            artisan_name: seller.artisan_name,
-            district: seller.district,
-            udyam_number: seller.udyam_number,
-            is_profile_complete: seller.is_profile_complete,
-          },
+          phone: cleanPhone,
         },
       });
     } finally {
@@ -170,6 +136,105 @@ exports.verifyOTP = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error verifying OTP. Please try again.',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+    });
+  }
+};
+
+// Login as buyer or seller after role selection
+exports.loginAsRole = async (req, res) => {
+  try {
+    const { phone, role } = req.body;
+
+    if (!phone || !['buyer', 'seller'].includes(role)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid phone or role.',
+      });
+    }
+
+    const connection = await pool.getConnection();
+    try {
+      if (role === 'buyer') {
+        // Check if buyer exists
+        const [buyers] = await connection.execute(
+          'SELECT id, phone, name, email, org_type, gst_no, district_name, is_profile_complete FROM buyers WHERE phone = ?',
+          [phone]
+        );
+
+        let buyer;
+        if (buyers.length === 0) {
+          // Create new buyer entry
+          const [result] = await connection.execute(
+            'INSERT INTO buyers (phone, is_profile_complete) VALUES (?, false)',
+            [phone]
+          );
+          buyer = {
+            id: result.insertId,
+            phone: phone,
+            name: null,
+            email: null,
+            org_type: null,
+            gst_no: null,
+            district_name: null,
+            is_profile_complete: false,
+          };
+        } else {
+          buyer = buyers[0];
+        }
+
+        res.status(200).json({
+          success: true,
+          message: 'Logged in as buyer',
+          data: {
+            user: buyer,
+            role: 'buyer',
+          },
+        });
+      } else if (role === 'seller') {
+        // Check if seller exists
+        const [sellers] = await connection.execute(
+          'SELECT id, phone, shop_name, artisan_name, district, udyam_number, is_profile_complete FROM sellers WHERE phone = ?',
+          [phone]
+        );
+
+        let seller;
+        if (sellers.length === 0) {
+          // Create new seller entry
+          const [result] = await connection.execute(
+            'INSERT INTO sellers (phone, is_profile_complete) VALUES (?, false)',
+            [phone]
+          );
+          seller = {
+            id: result.insertId,
+            phone: phone,
+            shop_name: null,
+            artisan_name: null,
+            district: null,
+            udyam_number: null,
+            is_profile_complete: false,
+          };
+        } else {
+          seller = sellers[0];
+        }
+
+        res.status(200).json({
+          success: true,
+          message: 'Logged in as seller',
+          data: {
+            user: seller,
+            role: 'seller',
+          },
+        });
+      }
+    } finally {
+      connection.release();
+    }
+  } catch (error) {
+    console.error('Login As Role Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error logging in. Please try again.',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }

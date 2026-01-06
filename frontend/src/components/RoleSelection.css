@@ -1,0 +1,117 @@
+/* Role Selection Component Styles */
+
+.role-selection-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 20px;
+}
+
+.role-selection-card {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  max-width: 450px;
+  width: 100%;
+  text-align: center;
+}
+
+.role-selection-card h1 {
+  color: #667eea;
+  font-size: 32px;
+  margin: 0 0 10px 0;
+  font-weight: 700;
+}
+
+.role-selection-card h2 {
+  color: #333;
+  font-size: 22px;
+  margin: 0 0 20px 0;
+  font-weight: 600;
+}
+
+.role-selection-card p {
+  color: #666;
+  font-size: 16px;
+  margin: 0 0 30px 0;
+  font-weight: 500;
+}
+
+.role-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.role-btn {
+  padding: 16px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.buyer-btn {
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+  color: white;
+}
+
+.buyer-btn:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+}
+
+.seller-btn {
+  background: linear-gradient(135deg, #FF9800 0%, #e68900 100%);
+  color: white;
+}
+
+.seller-btn:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(255, 152, 0, 0.4);
+}
+
+.role-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.info-text {
+  font-size: 14px;
+  color: #999;
+  margin: 0;
+  font-style: italic;
+}
+
+@media (max-width: 480px) {
+  .role-selection-card {
+    padding: 30px 20px;
+  }
+
+  .role-selection-card h1 {
+    font-size: 28px;
+  }
+
+  .role-selection-card h2 {
+    font-size: 20px;
+  }
+
+  .role-btn {
+    padding: 14px 20px;
+    font-size: 16px;
+  }
+}

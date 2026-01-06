@@ -13,6 +13,9 @@ router.get('/vendor/:vendor_id', productController.getVendorProducts);
 // Get all products (with pagination and filtering) - must come before /:product_id
 router.get('/', productController.getAllProducts);
 
+// Get product sellers by product ID
+router.get('/:id/sellers', productController.getProductSellers);
+
 // Get product by ID - must come last
 router.get('/:product_id', productController.getProductById);
 

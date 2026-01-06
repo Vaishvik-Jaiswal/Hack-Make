@@ -1,0 +1,76 @@
+/* ProductDetailPage.css */
+.product-detail-container {
+  @apply min-h-screen bg-gray-50;
+}
+
+.detail-nav {
+  @apply bg-white shadow-sm p-4 flex justify-between items-center;
+}
+
+.back-btn {
+  @apply flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700;
+}
+
+.cart-btn {
+  @apply flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg;
+}
+
+.product-detail-content {
+  @apply max-w-6xl mx-auto p-6;
+}
+
+.product-info {
+  @apply bg-white rounded-lg shadow-sm p-6 mb-8;
+}
+
+.product-info h1 {
+  @apply text-3xl font-bold text-gray-800 mb-2;
+}
+
+.product-info .category {
+  @apply text-blue-600 font-semibold mb-4;
+}
+
+.product-info .description {
+  @apply text-gray-600 mb-4;
+}
+
+.product-info .district {
+  @apply text-gray-500;
+}
+
+.sellers-section h2 {
+  @apply text-2xl font-bold text-gray-800 mb-6;
+}
+
+.sellers-list {
+  @apply space-y-4;
+}
+
+.seller-card {
+  @apply bg-white rounded-lg shadow-sm p-6 flex justify-between items-center;
+}
+
+.seller-info h3 {
+  @apply text-xl font-semibold text-gray-800 mb-2;
+}
+
+.rating {
+  @apply flex items-center gap-1 mb-2;
+}
+
+.seller-info p {
+  @apply text-gray-600;
+}
+
+.add-to-cart-btn {
+  @apply px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold disabled:bg-gray-400;
+}
+
+.loading, .error {
+  @apply flex items-center justify-center min-h-screen text-lg;
+}
+
+.error {
+  @apply text-red-500;
+}

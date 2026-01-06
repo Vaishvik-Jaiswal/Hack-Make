@@ -170,7 +170,7 @@ exports.getAllProducts = async (req, res) => {
 
     const connection = await pool.getConnection();
     try {
-      let query = 'SELECT id, vendor_id, name, description, price, category, image_path, created_at FROM products';
+      let query = 'SELECT id, name, description, category, base_district, created_at FROM products';
       let params = [];
 
       if (category) {
@@ -215,6 +215,64 @@ exports.getAllProducts = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error fetching products',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+    });
+  }
+};
+
+// Get product details and sellers in the district
+exports.getProductSellers = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: 'Product ID is required',
+      });
+    }
+
+    const connection = await pool.getConnection();
+    try {
+      // Get product details
+      const [products] = await connection.execute(
+        'SELECT id, name, description, category, base_district FROM products WHERE id = ?',
+        [id]
+      );
+
+      if (products.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: 'Product not found',
+        });
+      }
+
+      const product = products[0];
+
+      // Get sellers in the same district with their prices and stock
+      const [sellers] = await connection.execute(
+        `SELECT s.id, s.name, s.district_name, s.rating, ps.price, ps.stock
+         FROM sellers s
+         JOIN product_sellers ps ON s.id = ps.seller_id
+         WHERE ps.product_id = ? AND s.district_name = ?`,
+        [id, product.base_district]
+      );
+
+      res.status(200).json({
+        success: true,
+        data: {
+          product,
+          sellers,
+        },
+      });
+    } finally {
+      connection.release();
+    }
+  } catch (error) {
+    console.error('Get Product Sellers Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching product sellers. Please try again.',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }

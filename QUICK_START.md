@@ -66,7 +66,7 @@ npm run dev
    - Shop Name: `My Artisan Shop`
    - Artisan Name: `Your Name`
    - District: `Indore`
-   - Udyam: `UD12AB1234567`
+   - Udyam: `UD12345678901`
 7. Click "Complete Profile"
 8. See Dashboard!
 
@@ -112,10 +112,10 @@ Hack-Make/
 
 - **OTP**: Shown in backend terminal (development mode)
 
-- **Districts**: 32 MP districts in dropdown
+- **Districts**: 52 MP districts in dropdown
   - Indore, Bhopal, Jabalpur, etc.
 
-- **Udyam**: Format `UDxxxx0000000`
+- **Udyam**: Format `UDddddddddddd` (UD followed by 11 digits)
 
 ---
 

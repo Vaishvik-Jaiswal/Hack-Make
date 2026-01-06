@@ -2,7 +2,7 @@ import { useState } from 'react';
 import './LoginComponent.css';
 import { sendOTP, verifyOTP } from '../services/authService';
 
-export const LoginComponent = ({ onLoginSuccess }) => {
+export const LoginComponent = ({ onOtpVerified }) => {
   const [step, setStep] = useState('phone'); // 'phone' or 'otp'
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
@@ -57,8 +57,7 @@ export const LoginComponent = ({ onLoginSuccess }) => {
     setLoading(true);
     try {
       const response = await verifyOTP(phone, otp);
-      const seller = response.data.data.seller;
-      onLoginSuccess(seller);
+      onOtpVerified(response.data.data.phone);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to verify OTP');
     } finally {
@@ -70,7 +69,7 @@ export const LoginComponent = ({ onLoginSuccess }) => {
     <div className="login-container">
       <div className="login-card">
         <h1>ODOP Marketplace</h1>
-        <h2>Seller Login</h2>
+        <h2>Login</h2>
 
         {error && <div className="error-message">{error}</div>}
         {successMessage && <div className="success-message">{successMessage}</div>}
