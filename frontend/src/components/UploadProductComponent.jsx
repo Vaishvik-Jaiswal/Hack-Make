@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './UploadProductComponent.css';
 import api from '../services/api';
+import apiConfig from '../config/api';
 
 export const UploadProductComponent = ({ seller, onLogout }) => {
   const navigate = useNavigate();
@@ -18,7 +19,10 @@ export const UploadProductComponent = ({ seller, onLogout }) => {
     name: '',
     description: '',
     price: '',
-    category: ''
+    category: '',
+    quantity_per_month: '',
+    certifications: [],
+    packaging_type: ''
   });
 
   const [selectedFile, setSelectedFile] = useState(null);
@@ -42,6 +46,16 @@ export const UploadProductComponent = ({ seller, onLogout }) => {
     'Other'
   ];
 
+  const certificationOptions = ['ZED', 'FSSAI', 'GI Tag'];
+
+  const packagingOptions = [
+    'LOOSE/OPEN (Open Sacks)',
+    'BASIC PACKED (Simple PP/plastic bags)',
+    'SEALED(FOOD-GRADE) (Heat-sealed, hygenic)',
+    'VACCUM SEALED (oxygen free)',
+    'RETAIL READY (branded, labeled packs)'
+  ];
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -55,6 +69,22 @@ export const UploadProductComponent = ({ seller, onLogout }) => {
         [name]: ''
       }));
     }
+  };
+
+  const handleCertificationChange = (cert) => {
+    setFormData((prev) => ({
+      ...prev,
+      certifications: prev.certifications.includes(cert)
+        ? prev.certifications.filter((c) => c !== cert)
+        : [...prev.certifications, cert]
+    }));
+  };
+
+  const handlePackagingChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      packaging_type: e.target.value
+    }));
   };
 
   const handleFileChange = (e) => {
@@ -179,6 +209,9 @@ export const UploadProductComponent = ({ seller, onLogout }) => {
       formDataToSend.append('description', formData.description.trim());
       formDataToSend.append('price', formData.price);
       formDataToSend.append('category', formData.category);
+      formDataToSend.append('quantity_per_month', formData.quantity_per_month);
+      formDataToSend.append('certifications', formData.certifications.join(','));
+      formDataToSend.append('packaging_type', formData.packaging_type);
       formDataToSend.append('image', selectedFile);
 
       const response = await api.post('/products', formDataToSend);
@@ -196,7 +229,10 @@ export const UploadProductComponent = ({ seller, onLogout }) => {
           name: '',
           description: '',
           price: '',
-          category: ''
+          category: '',
+          quantity_per_month: '',
+          certifications: [],
+          packaging_type: ''
         });
         setSelectedFile(null);
         setImagePreview(null);
@@ -312,6 +348,62 @@ export const UploadProductComponent = ({ seller, onLogout }) => {
             </div>
           </div>
 
+          {/* Quantity Produced Per Month */}
+          <div className="form-group">
+            <label htmlFor="quantity_per_month">Quantity Produced/Month (Units)</label>
+            <input
+              type="number"
+              id="quantity_per_month"
+              name="quantity_per_month"
+              placeholder="e.g., 500"
+              value={formData.quantity_per_month}
+              onChange={handleInputChange}
+              disabled={loading}
+              min="0"
+              step="1"
+            />
+          </div>
+
+          {/* Certifications */}
+          <div className="form-group">
+            <label>Certifications</label>
+            <div className="certifications-group">
+              {certificationOptions.map((cert) => (
+                <div key={cert} className="checkbox-item">
+                  <input
+                    type="checkbox"
+                    id={`cert-${cert}`}
+                    checked={formData.certifications.includes(cert)}
+                    onChange={() => handleCertificationChange(cert)}
+                    disabled={loading}
+                  />
+                  <label htmlFor={`cert-${cert}`} className="checkbox-label">
+                    {cert}
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Packaging Type */}
+          <div className="form-group">
+            <label htmlFor="packaging_type">Packaging Type</label>
+            <select
+              id="packaging_type"
+              name="packaging_type"
+              value={formData.packaging_type}
+              onChange={handlePackagingChange}
+              disabled={loading}
+            >
+              <option value="">Select packaging type</option>
+              {packagingOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </div>
+
           {/* Image Upload */}
           <div className="form-group">
             <label htmlFor="image">Product Image *</label>
@@ -374,7 +466,7 @@ export const UploadProductComponent = ({ seller, onLogout }) => {
                 {product.image_path && (
                   <div className="product-image">
                     <img
-                      src={product.image_path}
+                      src={`${apiConfig.API_SERVER_URL}${product.image_path}`}
                       alt={product.name}
                       onError={(e) => {
                         e.target.src = 'https://via.placeholder.com/200?text=No+Image';

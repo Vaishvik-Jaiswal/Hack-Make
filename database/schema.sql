@@ -50,6 +50,9 @@ CREATE TABLE IF NOT EXISTS products (
   description TEXT,
   price DECIMAL(10, 2) NOT NULL,
   category VARCHAR(100),
+  quantity_per_month INT,
+  certifications VARCHAR(255),
+  packaging_type VARCHAR(100),
   image_path VARCHAR(255),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   
