@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './DashboardPage.css';
-import ExportReadinessScore from '../components/ExportReadinessScore';
 
 export const DashboardPage = ({ seller, onLogout }) => {
   const navigate = useNavigate();
@@ -77,8 +76,6 @@ export const DashboardPage = ({ seller, onLogout }) => {
             <button className="action-btn">View Analytics</button>
           </div>
         </div>
-
-        <ExportReadinessScore sellerId={seller.id} />
       </div>
     </div>
   );
