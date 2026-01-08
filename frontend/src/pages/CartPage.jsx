@@ -15,7 +15,7 @@ export const CartPage = ({ buyer }) => {
     }
   });
 
-  // Defensive fallback: if cart is not an array, reset to empty array
+  // Defensive fallback: if cart is not an array, reset to empty 
   useEffect(() => {
     if (!Array.isArray(cart)) {
       setCart([]);
