@@ -36,13 +36,11 @@ function App() {
   const currentPath = window.location.pathname;
   if (currentPath.startsWith('/admin')) {
     return (
-      <Router>
-        <Routes>
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          <Route path="/admin/bot" element={<AdminBot />} />
-          <Route path="*" element={<Navigate to="/admin/dashboard" />} />
-        </Routes>
-      </Router>
+      <Routes>
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/bot" element={<AdminBot />} />
+        <Route path="*" element={<Navigate to="/admin/dashboard" />} />
+      </Routes>
     );
   }
 

@@ -61,16 +61,22 @@ function sleep(ms) {
 async function generateSQL(userQuestion) {
   console.log("⏳ Calling GROQ Chat Completion API...");
 
-  const res = await fetch(
-    "https://api.groq.com/openai/v1/chat/completions",
-    {
+  const GROQ_API_URL = process.env.GROQ_API_URL || "https://api.groq.com/openai/v1/chat/completions";
+  const GROQ_API_KEY = process.env.GROQ_API_KEY;
+
+  if (!GROQ_API_KEY) {
+    throw new Error('GROQ_API_KEY is not set in the environment');
+  }
+
+  try {
+    const res = await fetch(GROQ_API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+        Authorization: `Bearer ${GROQ_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "llama-3.1-8b-instant",
+        model: process.env.GROQ_MODEL || "llama-3.1-8b-instant",
         temperature: 0,
         messages: [
           {
@@ -83,27 +89,38 @@ async function generateSQL(userQuestion) {
           }
         ]
       })
+    });
+
+    const text = await res.text();
+    let json;
+    try {
+      json = JSON.parse(text);
+    } catch (parseErr) {
+      json = { raw: text };
     }
-  );
 
-  const json = await res.json();
+    if (!res.ok) {
+      console.error('GROQ API returned error:', res.status, text);
+      throw new Error(`GROQ API error: ${res.status}`);
+    }
 
-  if (!res.ok) {
-    throw new Error(JSON.stringify(json));
+    const sql = json.choices?.[0]?.message?.content;
+
+    if (!sql) {
+      console.error('GROQ returned no SQL. Response snippet:', JSON.stringify(json).slice(0, 2000));
+      throw new Error("No SQL returned from GROQ");
+    }
+
+    console.log("✅ GROQ responded");
+
+    return sql
+      .replace(/```sql/gi, "")
+      .replace(/```/g, "")
+      .trim();
+  } catch (err) {
+    console.error('generateSQL error:', err.message || err);
+    throw err;
   }
-
-  const sql = json.choices?.[0]?.message?.content;
-
-  if (!sql) {
-    throw new Error("No SQL returned from GROQ");
-  }
-
-  console.log("✅ GROQ responded");
-
-  return sql
-    .replace(/```sql/gi, "")
-    .replace(/```/g, "")
-    .trim();
 }
 
 module.exports = {

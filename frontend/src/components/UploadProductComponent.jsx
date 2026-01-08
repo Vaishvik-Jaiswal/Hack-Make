@@ -27,6 +27,7 @@ export const UploadProductComponent = ({ seller, onLogout }) => {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
+  const [uploadedProducts, setUploadedProducts] = useState([]);
 
   const categories = [
     'Textiles', 'Pottery', 'Handicrafts', 'Metalware',
@@ -94,26 +95,24 @@ export const UploadProductComponent = ({ seller, onLogout }) => {
 
     setLoading(true);
     try {
-      const data = new FormData();
-      data.append('vendor_id', sellerId);
-      data.append('name', formData.name);
-      data.append('description', formData.description);
-      data.append('price', formData.price);
-      data.append('category', formData.category);
-      formDataToSend.append('quantity_per_month', formData.quantity_per_month);
-      formDataToSend.append('certifications', formData.certifications.join(','));
-      formDataToSend.append('packaging_type', formData.packaging_type);
-      data.append('image', selectedFile);
+      const dataToSend = new FormData();
+      dataToSend.append('vendor_id', sellerId);
+      dataToSend.append('name', formData.name);
+      dataToSend.append('description', formData.description);
+      dataToSend.append('price', formData.price);
+      dataToSend.append('category', formData.category);
+      dataToSend.append('quantity_per_month', formData.quantity_per_month);
+      dataToSend.append('certifications', formData.certifications.join(','));
+      dataToSend.append('packaging_type', formData.packaging_type);
+      dataToSend.append('image', selectedFile);
 
-      const response = await api.post('/products', formDataToSend);
+      const res = await api.post('/products', dataToSend);
 
-      if (response.data && response.data.success) {
+      if (res.data?.success) {
+        const product = res.data.data?.product;
         setSuccessMessage('Product uploaded successfully! 🎉');
-        
-        // Add to uploaded products list
-        if (response.data.data && response.data.data.product) {
-          setUploadedProducts((prev) => [response.data.data.product, ...prev]);
-        }
+
+        if (product) setUploadedProducts(prev => [product, ...prev]);
 
         // Reset form
         setFormData({
@@ -125,12 +124,11 @@ export const UploadProductComponent = ({ seller, onLogout }) => {
           certifications: [],
           packaging_type: ''
         });
-      const res = await api.post('/products', data);
-      if (res.data?.success) {
-        setSuccessMessage('Product uploaded successfully');
-        setFormData({ name: '', description: '', price: '', category: '' });
         setSelectedFile(null);
         setImagePreview(null);
+        setErrors({});
+      } else {
+        setErrors({ general: res.data?.message || 'Upload failed. Try again.' });
       }
     } catch (err) {
       setErrors({ general: 'Upload failed. Try again.' });
@@ -318,20 +316,6 @@ export const UploadProductComponent = ({ seller, onLogout }) => {
               ))}
             </select>
           </div>
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Category *</label>
-                      <select
-                        className={`form-select ${errors.category ? 'is-invalid' : ''}`}
-                        name="category"
-                        value={formData.category}
-                        onChange={handleInputChange}
-                      >
-                        <option value="">Select category</option>
-                        {categories.map(c => <option key={c}>{c}</option>)}
-                      </select>
-                      {errors.category && <div className="invalid-feedback">{errors.category}</div>}
-                    </div>
-                  </div>
 
                   {/* IMAGE UPLOAD */}
                   <div className="mb-4">
@@ -402,29 +386,16 @@ export const UploadProductComponent = ({ seller, onLogout }) => {
                     {new Date(product.created_at).toLocaleDateString()}
                   </span>
                 </div>
-                  {/* SUBMIT */}
-                  <button
-  type="submit"
-  className="btn w-100 text-white"
-  disabled={loading}
-  style={{
-    background: 'linear-gradient(90deg, #1a237e, #2e7d32)',
-    border: 'none',
-    padding: '12px',
-    fontWeight: 600
-  }}
->
-  {loading ? 'Uploading…' : 'Upload Product'}
-</button>
-
-                </form>
 
               </div>
-            </div>
-
+            ))}
           </div>
         </div>
-      </div>
+      )}
+          </div>
+            </div>
+          </div>
+        </div>
     </div>
   );
 };

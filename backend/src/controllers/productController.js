@@ -1,20 +1,20 @@
 const pool = require('../config/database');
 const path = require('path');
 
-async function ensureColumns(connection) {
-  try {
-    // Try a quick select that uses the columns
-    await connection.query('SELECT in_stock, quantity FROM products LIMIT 1');
-  } catch (err) {
-    // If column missing, add them safely
-    if (err && err.code === 'ER_BAD_FIELD_ERROR') {
-      await connection.execute('ALTER TABLE products ADD COLUMN IF NOT EXISTS in_stock BOOLEAN NOT NULL DEFAULT true');
-      await connection.execute('ALTER TABLE products ADD COLUMN IF NOT EXISTS quantity INT NOT NULL DEFAULT 0');
-    } else {
-      throw err;
-    }
-  }
-}
+// async function ensureColumns(connection) {
+//   try {
+//     // Try a quick select that uses the columns
+//     await connection.query('SELECT in_stock, quantity FROM products LIMIT 1');
+//   } catch (err) {
+//     // If column missing, add them safely
+//     if (err && err.code === 'ER_BAD_FIELD_ERROR') {
+//       await connection.execute('ALTER TABLE products ADD COLUMN IF NOT EXISTS in_stock BOOLEAN NOT NULL DEFAULT true');
+//       await connection.execute('ALTER TABLE products ADD COLUMN IF NOT EXISTS quantity INT NOT NULL DEFAULT 0');
+//     } else {
+//       throw err;
+//     }
+//   }
+// }
 
 // Upload product with image
 const uploadProduct = async (req, res) => {
@@ -114,7 +114,7 @@ const getVendorProducts = async (req, res) => {
       // await ensureColumns(connection);
 
       const [products] = await connection.execute(
-        'SELECT id, vendor_id, name, description, price, category, image_path, in_stock, quantity, created_at FROM products WHERE vendor_id = ? ORDER BY created_at DESC',
+        'SELECT id, vendor_id, name, description, price, category, image_path, in_stock, quantity_per_month, created_at FROM products WHERE vendor_id = ? ORDER BY created_at DESC',
         [vendor_id]
       );
 
@@ -155,7 +155,7 @@ const getProductById = async (req, res) => {
       //await ensureColumns(connection);
 
       const [products] = await connection.execute(
-        'SELECT id, vendor_id, name, description, price, category, image_path, in_stock, quantity, created_at FROM products WHERE id = ?',
+        'SELECT id, vendor_id, name, description, price, category, image_path, in_stock, quantity_per_month, created_at FROM products WHERE id = ?',
         [product_id]
       );
 
@@ -197,7 +197,7 @@ const getAllProducts = async (req, res) => {
     try {
       //await ensureColumns(connection);
 
-      let query = 'SELECT id, vendor_id, name, description, price, category, image_path, in_stock, quantity, created_at FROM products';
+      let query = 'SELECT id, vendor_id, name, description, price, category, image_path, in_stock, quantity_per_month, created_at FROM products';
       let params = [];
 
       if (category) {
@@ -262,16 +262,18 @@ const updateProduct = async (req, res) => {
         ? Number(req.body.price)
         : null;
 
-    const quantity =
-      req.body.quantity !== undefined
-        ? parseInt(req.body.quantity, 10)
-        : null;
+    const quantity_per_month =
+  req.body.quantity_per_month !== undefined
+    ? parseInt(req.body.quantity_per_month, 10)
+    : null;
 
     const description =
       req.body.description !== undefined ? req.body.description : null;
 
     const in_stock =
-      quantity !== null ? (quantity > 0 ? 1 : 0) : req.body.in_stock ? 1 : 0;
+  quantity_per_month !== null
+    ? quantity_per_month > 0 ? 1 : 0
+    : req.body.in_stock ? 1 : 0;
 
     const connection = await pool.getConnection();
     try {
@@ -286,20 +288,21 @@ const updateProduct = async (req, res) => {
 
       await connection.execute(
         `UPDATE products
-         SET price = COALESCE(?, price),
-             description = COALESCE(?, description),
-             quantity = COALESCE(?, quantity),
-             in_stock = COALESCE(?, in_stock)
-         WHERE id = ? AND vendor_id = ?`,
+        SET price = COALESCE(?, price),
+            description = COALESCE(?, description),
+            quantity_per_month = COALESCE(?, quantity_per_month),
+            in_stock = COALESCE(?, in_stock)
+        WHERE id = ? AND vendor_id = ?`,
         [
           price,
           description,
-          quantity,
+          quantity_per_month,
           in_stock,
           product_id,
           vendor_id
         ]
       );
+
 
       const [updated] = await connection.execute(
         'SELECT * FROM products WHERE id = ?',
@@ -334,13 +337,13 @@ const toggleAvailability = async (req, res) => {
       //await ensureColumns(connection);
 
       // Verify ownership
-      const [rows] = await connection.execute('SELECT in_stock, quantity FROM products WHERE id = ? AND vendor_id = ?', [product_id, vendor_id]);
+      const [rows] = await connection.execute('SELECT in_stock, quantity_per_month FROM products WHERE id = ? AND vendor_id = ?', [product_id, vendor_id]);
       if (rows.length === 0) return res.status(404).json({ success: false, message: 'Product not found or does not belong to this vendor' });
 
       // Toggle
       await connection.execute('UPDATE products SET in_stock = NOT in_stock WHERE id = ? AND vendor_id = ?', [product_id, vendor_id]);
 
-      const [updated] = await connection.execute('SELECT id, vendor_id, name, description, price, category, image_path, in_stock, quantity, created_at FROM products WHERE id = ?', [product_id]);
+      const [updated] = await connection.execute('SELECT id, vendor_id, name, description, price, category, image_path, in_stock, quantity_per_month, created_at FROM products WHERE id = ?', [product_id]);
 
       res.status(200).json({ success: true, data: { product: updated[0] } });
     } finally {
@@ -421,13 +424,21 @@ const adjustQuantity = async (req, res) => {
     try {
       //await ensureColumns(connection);
 
-      const [rows] = await connection.execute('SELECT quantity FROM products WHERE id = ? AND vendor_id = ?', [product_id, vendor_id]);
+      const [rows] = await connection.execute('SELECT quantity_per_month FROM products WHERE id = ? AND vendor_id = ?', [product_id, vendor_id]);
       if (rows.length === 0) return res.status(404).json({ success: false, message: 'Product not found or does not belong to this vendor' });
 
-      // Use GREATEST to prevent negative quantity
-      await connection.execute('UPDATE products SET quantity = GREATEST(0, quantity + ?) WHERE id = ? AND vendor_id = ?', [parseInt(delta, 10), product_id, vendor_id]);
+      const deltaInt = parseInt(delta, 10);
+      if (isNaN(deltaInt)) {
+        return res.status(400).json({ success: false, message: 'delta must be an integer' });
+      }
 
-      const [updated] = await connection.execute('SELECT id, vendor_id, name, description, price, category, image_path, in_stock, quantity, created_at FROM products WHERE id = ?', [product_id]);
+      // Update quantity_per_month, prevent negative, and set in_stock based on quantity
+      await connection.execute(
+        'UPDATE products SET quantity_per_month = GREATEST(0, quantity_per_month + ?), in_stock = CASE WHEN GREATEST(0, quantity_per_month + ?) > 0 THEN 1 ELSE 0 END WHERE id = ? AND vendor_id = ?',
+        [deltaInt, deltaInt, product_id, vendor_id]
+      );
+
+      const [updated] = await connection.execute('SELECT id, vendor_id, name, description, price, category, image_path, in_stock, quantity_per_month, created_at FROM products WHERE id = ?', [product_id]);
 
       res.status(200).json({ success: true, data: { product: updated[0] } });
     } finally {

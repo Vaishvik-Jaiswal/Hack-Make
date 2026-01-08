@@ -9,7 +9,8 @@ export default function EditModal({ product, onClose, onSave }) {
     if (product) {
       setPrice(product.price);
       setDescription(product.description || '');
-      setQuantity(product.quantity ?? 0);
+      // Prefer quantity_per_month (newer field), fallback to legacy quantity
+      setQuantity(product.quantity_per_month ?? product.quantity ?? 0);
     }
   }, [product]);
 
@@ -18,7 +19,7 @@ export default function EditModal({ product, onClose, onSave }) {
     onSave(product.id, {
       price,
       description,
-      quantity,
+      quantity_per_month: quantity,
       in_stock: quantity > 0 ? 1 : 0
     });
   };

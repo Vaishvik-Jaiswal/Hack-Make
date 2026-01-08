@@ -36,8 +36,9 @@ export default function DataTable({
 
           <tbody>
             {products.map((p) => {
-              const isOutByQty = p.quantity === 0;
-              const inStock = p.in_stock && !isOutByQty;
+              const isOutByQty = Number(p.quantity_per_month) === 0;
+              const inStock = Boolean(p.in_stock) && !isOutByQty;
+
 
               return (
                 <tr key={p.id}>
@@ -83,7 +84,8 @@ export default function DataTable({
                   <td>{p.category}</td>
 
                   {/* QTY */}
-                  <td>{p.quantity}</td>
+                 <td>{p.quantity_per_month ?? 0}</td>
+
 
                   {/* STATUS */}
                   <td>
