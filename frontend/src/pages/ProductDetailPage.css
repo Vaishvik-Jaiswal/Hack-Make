@@ -1,0 +1,271 @@
+/* ProductDetailPage.css
+.product-detail-container {
+  @apply min-h-screen bg-gray-50;
+}
+
+.detail-nav {
+  @apply bg-white shadow-sm p-4 flex justify-between items-center;
+}
+
+.back-btn {
+  @apply flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700;
+}
+
+.cart-btn {
+  @apply flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg;
+}
+
+.product-detail-content {
+  @apply max-w-6xl mx-auto p-6;
+}
+
+.product-info {
+  @apply bg-white rounded-lg shadow-sm p-6 mb-8;
+}
+
+.product-info h1 {
+  @apply text-3xl font-bold text-gray-800 mb-2;
+}
+
+.product-info .category {
+  @apply text-blue-600 font-semibold mb-4;
+}
+
+.product-info .description {
+  @apply text-gray-600 mb-4;
+}
+
+.product-info .district {
+  @apply text-gray-500;
+}
+
+.sellers-section h2 {
+  @apply text-2xl font-bold text-gray-800 mb-6;
+}
+
+.sellers-list {
+  @apply space-y-4;
+}
+
+.seller-card {
+  @apply bg-white rounded-lg shadow-sm p-6 flex justify-between items-center;
+}
+
+.seller-info h3 {
+  @apply text-xl font-semibold text-gray-800 mb-2;
+}
+
+.rating {
+  @apply flex items-center gap-1 mb-2;
+}
+
+.seller-info p {
+  @apply text-gray-600;
+}
+
+.add-to-cart-btn {
+  @apply px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold disabled:bg-gray-400;
+}
+
+.loading, .error {
+  @apply flex items-center justify-center min-h-screen text-lg;
+}
+
+.error {
+  @apply text-red-500;
+} */
+
+/* ===== ODOP Product Detail Page ===== */
+
+.product-detail-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #eef6fb 0%, #f4fbf7 100%);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ===== Top Navigation ===== */
+
+.detail-nav {
+  background: linear-gradient(135deg, #1f3c88 0%, #1e7f5c 100%);
+  padding: 18px 36px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+}
+
+.back-btn,
+.cart-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.35);
+  color: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.25s ease;
+}
+
+.back-btn:hover,
+.cart-btn:hover {
+  background: rgba(255,255,255,0.25);
+  transform: translateY(-1px);
+}
+
+/* ===== Page Content ===== */
+
+.product-detail-content {
+  max-width: 1200px;
+  margin: 30px auto;
+  padding: 0 20px;
+}
+
+/* ===== Product Info Card ===== */
+
+.product-info {
+  background: white;
+  border-radius: 14px;
+  padding: 32px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+  margin-bottom: 36px;
+}
+
+.product-info h1 {
+  font-size: 32px;
+  color: #1f3c88;
+  margin-bottom: 10px;
+}
+
+.category {
+  display: inline-block;
+  background: #e8f0ff;
+  color: #1f3c88;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.description {
+  font-size: 16px;
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.district {
+  color: #666;
+  font-size: 14px;
+}
+
+/* ===== Sellers Section ===== */
+
+.sellers-section h2 {
+  font-size: 26px;
+  margin-bottom: 22px;
+  color: #1f3c88;
+}
+
+.sellers-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 22px;
+}
+
+/* Seller Card */
+
+.seller-card {
+  background: white;
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: 0 10px 26px rgba(0,0,0,0.06);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.25s ease;
+  border-left: 5px solid #1e7f5c;
+}
+
+.seller-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px rgba(0,0,0,0.1);
+}
+
+.seller-info h3 {
+  margin: 0 0 8px;
+  color: #1f3c88;
+  font-size: 20px;
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #f1b400;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.seller-info p {
+  margin: 4px 0;
+  color: #555;
+  font-size: 14px;
+}
+
+/* ===== Add to Cart Button ===== */
+
+.add-to-cart-btn {
+  background: linear-gradient(135deg, #1f3c88 0%, #1e7f5c 100%);
+  color: white;
+  padding: 12px 18px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.25s ease;
+  min-width: 140px;
+}
+
+.add-to-cart-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(30,127,92,0.35);
+}
+
+.add-to-cart-btn:disabled {
+  background: #cfcfcf;
+  cursor: not-allowed;
+}
+
+/* ===== States ===== */
+
+.loading,
+.error {
+  min-height: 70vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+}
+
+.error {
+  color: #e63946;
+}
+
+/* ===== Responsive ===== */
+
+@media (max-width: 768px) {
+  .detail-nav {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .seller-card {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+  }
+}

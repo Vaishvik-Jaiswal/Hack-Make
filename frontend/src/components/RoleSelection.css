@@ -1,0 +1,260 @@
+/* Role Selection Component Styles
+
+.role-selection-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 20px;
+}
+
+.role-selection-card {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  max-width: 450px;
+  width: 100%;
+  text-align: center;
+}
+
+.role-selection-card h1 {
+  color: #667eea;
+  font-size: 32px;
+  margin: 0 0 10px 0;
+  font-weight: 700;
+}
+
+.role-selection-card h2 {
+  color: #333;
+  font-size: 22px;
+  margin: 0 0 20px 0;
+  font-weight: 600;
+}
+
+.role-selection-card p {
+  color: #666;
+  font-size: 16px;
+  margin: 0 0 30px 0;
+  font-weight: 500;
+}
+
+.role-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.role-btn {
+  padding: 16px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.buyer-btn {
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+  color: white;
+}
+
+.buyer-btn:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+}
+
+.seller-btn {
+  background: linear-gradient(135deg, #FF9800 0%, #e68900 100%);
+  color: white;
+}
+
+.seller-btn:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(255, 152, 0, 0.4);
+}
+
+.role-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.info-text {
+  font-size: 14px;
+  color: #999;
+  margin: 0;
+  font-style: italic;
+}
+
+@media (max-width: 480px) {
+  .role-selection-card {
+    padding: 30px 20px;
+  }
+
+  .role-selection-card h1 {
+    font-size: 28px;
+  }
+
+  .role-selection-card h2 {
+    font-size: 20px;
+  }
+
+  .role-btn {
+    padding: 14px 20px;
+    font-size: 16px;
+  }
+} */
+
+/* ================================
+   Role Selection – ODOP Theme
+================================ */
+
+.role-selection-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #eef5ff, #e6f7f1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* MAIN CARD */
+.role-selection-card {
+  width: 900px;
+  max-width: 95%;
+  display: flex;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+  background: #ffffff;
+}
+
+/* LEFT PANEL (Government style) */
+.role-selection-left {
+  width: 40%;
+  padding: 40px;
+  background: linear-gradient(180deg, #1e3c72, #2a5298, #1b7f4b);
+  color: #ffffff;
+}
+
+.role-selection-left h1 {
+  font-size: 26px;
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+
+.role-selection-left p {
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.role-selection-left ul {
+  padding-left: 0;
+  list-style: none;
+}
+
+.role-selection-left li {
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+/* RIGHT PANEL */
+.role-selection-right {
+  width: 60%;
+  padding: 50px 60px;
+  text-align: center;
+}
+
+.role-selection-right h2 {
+  color: #1e40af;
+  font-size: 24px;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.role-selection-right .subtitle {
+  color: #555;
+  margin-bottom: 30px;
+  font-size: 15px;
+}
+
+/* BUTTONS */
+.role-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-bottom: 25px;
+}
+
+.role-btn {
+  padding: 15px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.25s ease;
+}
+
+.buyer-btn {
+  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  color: #ffffff;
+}
+
+.buyer-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(30, 60, 114, 0.45);
+}
+
+.seller-btn {
+  background: linear-gradient(135deg, #1b7f4b, #0f766e);
+  color: #ffffff;
+}
+
+.seller-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(15, 118, 110, 0.45);
+}
+
+.role-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* FOOTER TEXT */
+.info-text {
+  font-size: 13px;
+  color: #777;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .role-selection-card {
+    flex-direction: column;
+  }
+
+  .role-selection-left,
+  .role-selection-right {
+    width: 100%;
+  }
+
+  .role-selection-right {
+    padding: 40px 25px;
+  }
+}
