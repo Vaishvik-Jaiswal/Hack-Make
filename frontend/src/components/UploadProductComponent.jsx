@@ -94,14 +94,16 @@ export const UploadProductComponent = ({ seller, onLogout }) => {
 
     setLoading(true);
     try {
-      // Create FormData for multipart/form-data
-      const formDataToSend = new FormData();
-      formDataToSend.append('vendor_id', sellerId);
-      formDataToSend.append('name', formData.name.trim());
-      formDataToSend.append('description', formData.description.trim());
-      formDataToSend.append('price', formData.price);
-      formDataToSend.append('category', formData.category);
-      formDataToSend.append('image', selectedFile);
+      const data = new FormData();
+      data.append('vendor_id', sellerId);
+      data.append('name', formData.name);
+      data.append('description', formData.description);
+      data.append('price', formData.price);
+      data.append('category', formData.category);
+      formDataToSend.append('quantity_per_month', formData.quantity_per_month);
+      formDataToSend.append('certifications', formData.certifications.join(','));
+      formDataToSend.append('packaging_type', formData.packaging_type);
+      data.append('image', selectedFile);
 
       const response = await api.post('/products', formDataToSend);
 
@@ -118,8 +120,15 @@ export const UploadProductComponent = ({ seller, onLogout }) => {
           name: '',
           description: '',
           price: '',
-          category: ''
+          category: '',
+          quantity_per_month: '',
+          certifications: [],
+          packaging_type: ''
         });
+      const res = await api.post('/products', data);
+      if (res.data?.success) {
+        setSuccessMessage('Product uploaded successfully');
+        setFormData({ name: '', description: '', price: '', category: '' });
         setSelectedFile(null);
         setImagePreview(null);
       }
@@ -254,6 +263,76 @@ export const UploadProductComponent = ({ seller, onLogout }) => {
             </div>
           </div>
 
+          {/* Quantity Produced Per Month */}
+          <div className="form-group">
+            <label htmlFor="quantity_per_month">Quantity Produced/Month (Units)</label>
+            <input
+              type="number"
+              id="quantity_per_month"
+              name="quantity_per_month"
+              placeholder="e.g., 500"
+              value={formData.quantity_per_month}
+              onChange={handleInputChange}
+              disabled={loading}
+              min="0"
+              step="1"
+            />
+          </div>
+
+          {/* Certifications */}
+          <div className="form-group">
+            <label>Certifications</label>
+            <div className="certifications-group">
+              {certificationOptions.map((cert) => (
+                <div key={cert} className="checkbox-item">
+                  <input
+                    type="checkbox"
+                    id={`cert-${cert}`}
+                    checked={formData.certifications.includes(cert)}
+                    onChange={() => handleCertificationChange(cert)}
+                    disabled={loading}
+                  />
+                  <label htmlFor={`cert-${cert}`} className="checkbox-label">
+                    {cert}
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Packaging Type */}
+          <div className="form-group">
+            <label htmlFor="packaging_type">Packaging Type</label>
+            <select
+              id="packaging_type"
+              name="packaging_type"
+              value={formData.packaging_type}
+              onChange={handlePackagingChange}
+              disabled={loading}
+            >
+              <option value="">Select packaging type</option>
+              {packagingOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </div>
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">Category *</label>
+                      <select
+                        className={`form-select ${errors.category ? 'is-invalid' : ''}`}
+                        name="category"
+                        value={formData.category}
+                        onChange={handleInputChange}
+                      >
+                        <option value="">Select category</option>
+                        {categories.map(c => <option key={c}>{c}</option>)}
+                      </select>
+                      {errors.category && <div className="invalid-feedback">{errors.category}</div>}
+                    </div>
+                  </div>
+
                   {/* IMAGE UPLOAD */}
                   <div className="mb-4">
                     <label className="form-label">Product Image *</label>
@@ -304,7 +383,7 @@ export const UploadProductComponent = ({ seller, onLogout }) => {
                 {product.image_path && (
                   <div className="product-image">
                     <img
-                      src={product.image_path}
+                      src={`${apiConfig.API_SERVER_URL}${product.image_path}`}
                       alt={product.name}
                       onError={(e) => {
                         e.target.src = 'https://via.placeholder.com/200?text=No+Image';
@@ -323,6 +402,23 @@ export const UploadProductComponent = ({ seller, onLogout }) => {
                     {new Date(product.created_at).toLocaleDateString()}
                   </span>
                 </div>
+                  {/* SUBMIT */}
+                  <button
+  type="submit"
+  className="btn w-100 text-white"
+  disabled={loading}
+  style={{
+    background: 'linear-gradient(90deg, #1a237e, #2e7d32)',
+    border: 'none',
+    padding: '12px',
+    fontWeight: 600
+  }}
+>
+  {loading ? 'Uploading…' : 'Upload Product'}
+</button>
+
+                </form>
+
               </div>
             </div>
 
