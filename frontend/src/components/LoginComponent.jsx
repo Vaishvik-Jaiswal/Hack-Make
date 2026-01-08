@@ -114,11 +114,11 @@ const LoginComponent = ({ onOtpVerified }) => {
                   }}
                 >
                   <h6 className="fw-semibold mb-3">
-                    Seller Access Portal
+                    Access Portal
                   </h6>
 
                   <p className="small opacity-75">
-                    Official seller login for ODOP Marketplace, a Government
+                    Official login for ODOP Marketplace, a Government
                     of Madhya Pradesh initiative to promote local products
                     nationwide.
                   </p>
@@ -154,7 +154,7 @@ const LoginComponent = ({ onOtpVerified }) => {
                 {/* RIGHT FORM PANEL */}
                 <div className="col-md-7 p-5 bg-white">
                   <h6 className="fw-semibold mb-2">
-                    Seller Login
+                    Login
                   </h6>
                   <p className="text-muted small mb-4">
                     Login using your registered mobile number.

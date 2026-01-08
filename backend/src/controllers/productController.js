@@ -185,12 +185,79 @@ const getProductById = async (req, res) => {
   }
 };
 
+// Get product details along with sellers offering it (for buyer ProductDetailPage)
+const getProductSellers = async (req, res) => {
+  try {
+    const { product_id } = req.params;
+
+    if (!product_id) {
+      return res.status(400).json({
+        success: false,
+        message: 'product_id is required',
+      });
+    }
+
+    const connection = await pool.getConnection();
+    try {
+      const [products] = await connection.execute(
+  'SELECT id, vendor_id, name, description, price, category, image_path, in_stock, quantity_per_month, created_at FROM products WHERE id = ?',
+        [product_id]
+      );
+
+      if (products.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: 'Product not found',
+        });
+      }
+
+      const product = products[0];
+
+      // MVP: We don't have multi-seller offers table yet.
+      // Return the product's vendor as the only "seller" option.
+      const [vendors] = await connection.execute(
+        'SELECT id, shop_name, artisan_name, district FROM sellers WHERE id = ?',
+        [product.vendor_id]
+      );
+
+      const sellers = (vendors || []).map((v) => ({
+        id: v.id,
+        name: v.shop_name || v.artisan_name || 'Seller',
+        rating: 4.5,
+        price: product.price,
+        stock: product.in_stock ? 999 : 0,
+        district: v.district || null,
+      }));
+
+      res.status(200).json({
+        success: true,
+        data: {
+          product,
+          sellers,
+        },
+      });
+    } finally {
+      connection.release();
+    }
+  } catch (error) {
+    console.error('Get Product Sellers Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching product sellers',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+    });
+  }
+};
+
 // Get all products (with pagination)
 const getAllProducts = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const offset = (page - 1) * limit;
+  const pageRaw = parseInt(req.query.page, 10);
+  const limitRaw = parseInt(req.query.limit, 10);
+  const page = Number.isFinite(pageRaw) && pageRaw > 0 ? pageRaw : 1;
+  // Clamp limit to a safe range to prevent abuse
+  const limit = Number.isFinite(limitRaw) && limitRaw > 0 ? Math.min(limitRaw, 100) : 10;
+  const offset = (page - 1) * limit;
     const category = req.query.category || null;
 
     const connection = await pool.getConnection();
@@ -205,8 +272,10 @@ const getAllProducts = async (req, res) => {
         params.push(category);
       }
 
-      query += ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
-      params.push(limit, offset);
+  // NOTE: Some MySQL/MariaDB configurations don't reliably support binding LIMIT/OFFSET
+  // in prepared statements. Since these values are server-side computed integers,
+  // safely inline them.
+  query += ` ORDER BY created_at DESC LIMIT ${Number(limit)} OFFSET ${Number(offset)}`;
 
       const [products] = await connection.execute(query, params);
 
@@ -455,6 +524,7 @@ module.exports = {
   getVendorProducts,
   getProductById,
   getAllProducts,
+  getProductSellers,
   updateProduct,
   toggleAvailability,
   deleteProduct,

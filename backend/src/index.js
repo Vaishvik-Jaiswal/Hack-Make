@@ -6,6 +6,7 @@ require('dotenv').config();
 
 const authRoutes = require('./routes/authRoutes');
 const sellerRoutes = require('./routes/sellerRoutes');
+const buyerRoutes = require('./routes/buyerRoutes');
 const productRoutes = require('./routes/productRoutes');
 const agentRoutes = require('./routes/agentRoutes');
 
@@ -23,6 +24,7 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/seller', sellerRoutes);
+app.use('/api/buyer', buyerRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/agents', agentRoutes);
 

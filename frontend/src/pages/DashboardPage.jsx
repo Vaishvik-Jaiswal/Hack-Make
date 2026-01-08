@@ -1,16 +1,235 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AshokaChakraIcon from '../components/icons/AshokaChakraIcon';
 import 'bootstrap-icons/font/bootstrap-icons.css';
+import axios from 'axios';
 
-const DashboardPage = ({ seller, onLogout }) => {
+const DashboardPage = ({ seller, buyer, onLogout }) => {
   const navigate = useNavigate();
+  const isBuyer = !!buyer;
+
+  const [products, setProducts] = useState([]);
+  const [loadingProducts, setLoadingProducts] = useState(false);
+  const [productsError, setProductsError] = useState('');
+  const [query, setQuery] = useState('');
+  const [category, setCategory] = useState('');
+  const [cartCount, setCartCount] = useState(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem('cart'));
+      return Array.isArray(stored) ? stored.length : 0;
+    } catch {
+      return 0;
+    }
+  });
 
   useEffect(() => {
-    if (!seller) navigate('/');
-  }, [seller, navigate]);
+    // Seller dashboard requires a seller.
+    // Buyer dashboard requires a buyer.
+    if (!buyer && !seller) navigate('/');
+  }, [buyer, seller, navigate]);
 
-  if (!seller) return null;
+  // Keep cart badge in sync with localStorage updates from Cart/Product pages
+  useEffect(() => {
+    if (!isBuyer) return;
+    const refreshCartCount = () => {
+      try {
+        const stored = JSON.parse(localStorage.getItem('cart'));
+        setCartCount(Array.isArray(stored) ? stored.length : 0);
+      } catch {
+        setCartCount(0);
+      }
+    };
+    refreshCartCount();
+    window.addEventListener('cartUpdated', refreshCartCount);
+    window.addEventListener('storage', refreshCartCount);
+    return () => {
+      window.removeEventListener('cartUpdated', refreshCartCount);
+      window.removeEventListener('storage', refreshCartCount);
+    };
+  }, [isBuyer]);
+
+  useEffect(() => {
+    if (!isBuyer) return;
+
+    const fetchProducts = async () => {
+      setLoadingProducts(true);
+      setProductsError('');
+      try {
+        // backend mounts product routes at /api/products
+        const res = await axios.get('/api/products');
+        const data = res?.data?.data;
+        const list = Array.isArray(data?.products)
+          ? data.products
+          : Array.isArray(data)
+            ? data
+            : [];
+        setProducts(list);
+      } catch (err) {
+        console.error('Failed to load products:', err);
+        setProductsError('Failed to load products. Please refresh.');
+        setProducts([]);
+      } finally {
+        setLoadingProducts(false);
+      }
+    };
+
+    fetchProducts();
+  }, [isBuyer]);
+
+  const categories = useMemo(() => {
+    const set = new Set();
+    for (const p of products) {
+      const c = p?.category;
+      if (typeof c === 'string' && c.trim()) set.add(c.trim());
+    }
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [products]);
+
+  const filteredProducts = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return products.filter((p) => {
+      const name = (p?.name || '').toString().toLowerCase();
+      const cat = (p?.category || '').toString();
+      const matchesQuery = !q || name.includes(q);
+      const matchesCategory = !category || cat === category;
+      return matchesQuery && matchesCategory;
+    });
+  }, [products, query, category]);
+
+  if (!buyer && !seller) return null;
+
+  if (isBuyer) {
+    return (
+      <div
+        className="min-vh-100"
+        style={{ background: 'linear-gradient(135deg, #eef2ff 0%, #e6f4ea 100%)' }}
+      >
+        <nav
+          className="px-4 py-3 d-flex justify-content-between align-items-center"
+          style={{ background: 'linear-gradient(90deg, #1a237e, #2e7d32)', color: '#fff' }}
+        >
+          <div>
+            <div className="d-flex align-items-center gap-3">
+              <h4 className="mb-0 fw-bold">ODOP Marketplace</h4>
+            </div>
+            <small className="opacity-75">Buyer Dashboard</small>
+          </div>
+
+          <div className="d-flex align-items-center gap-2">
+            <button
+              className="btn btn-outline-light btn-sm position-relative"
+              onClick={() => navigate('/cart')}
+              type="button"
+            >
+              <i className="bi bi-cart3 me-2" />
+              Cart
+              {cartCount > 0 && (
+                <span
+                  className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                >
+                  {cartCount}
+                </span>
+              )}
+            </button>
+            <button className="btn btn-outline-light btn-sm" onClick={onLogout} type="button">
+              Logout
+            </button>
+          </div>
+        </nav>
+
+        <div className="container py-5">
+          {/* Welcome card */}
+          <div className="row justify-content-center mb-4">
+            <div className="col-lg-10">
+              <div className="bg-white rounded-4 shadow-sm p-4">
+                <h2 className="fw-bold mb-1">Welcome, {buyer?.name || 'Buyer'}!</h2>
+                <div className="text-muted">
+                  {(buyer?.org_type || 'INDIVIDUAL').toString().replaceAll('_', ' ')}
+                  {buyer?.district_name ? ` from ${buyer.district_name}` : ''}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Search / filters */}
+          <div className="row justify-content-center mb-4">
+            <div className="col-lg-10">
+              <div className="bg-white rounded-4 shadow-sm p-3 d-flex align-items-center gap-3">
+                <div className="flex-grow-1 d-flex align-items-center gap-2">
+                  <i className="bi bi-search text-muted" />
+                  <input
+                    type="text"
+                    className="form-control border-0"
+                    placeholder="Search by product name..."
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                  />
+                </div>
+                <div style={{ width: 220 }}>
+                  <select
+                    className="form-select"
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                  >
+                    <option value="">All categories</option>
+                    {categories.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Products */}
+          <div className="row justify-content-center">
+            <div className="col-lg-10">
+              <h4 className="fw-bold mb-3" style={{ color: '#1a237e' }}>
+                Available Products
+              </h4>
+
+              {productsError && (
+                <div className="alert alert-danger" role="alert">
+                  {productsError}
+                </div>
+              )}
+
+              {loadingProducts ? (
+                <div className="text-muted">Loading products…</div>
+              ) : (
+                <div className="row g-3">
+                  {filteredProducts.map((p) => (
+                    <div key={p.id} className="col-12 col-md-6 col-lg-3">
+                      <div
+                        className="bg-white rounded-4 shadow-sm p-3 h-100"
+                        role="button"
+                        onClick={() => navigate(`/product/${p.id}`)}
+                      >
+                        <div className="fw-bold" style={{ color: '#1a237e' }}>
+                          {p.name}
+                        </div>
+                        <div className="text-muted" style={{ fontSize: 13 }}>
+                          {p.category || 'Other'}
+                        </div>
+                        <div className="text-muted mt-2" style={{ fontSize: 13 }}>
+                          Origin: {p.base_district || p.district || p.origin || ''}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {!filteredProducts.length && (
+                    <div className="text-muted">No products found.</div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -44,6 +263,17 @@ const DashboardPage = ({ seller, onLogout }) => {
         }}
       >
         <div className="d-flex align-items-center gap-3">
+          {/* Home icon that routes to role-selection (root) */}
+          <button
+            type="button"
+            className="btn btn-link text-white p-0 me-2"
+            title="Role selection / Home"
+            onClick={() => navigate('/')}
+            style={{ textDecoration: 'none' }}
+          >
+            <i className="bi bi-house-door-fill" style={{ fontSize: 22, color: '#fff' }} />
+          </button>
+
           <AshokaChakraIcon size={34} color="#ffffff" />
           <div>
             <h5 className="mb-0 fw-semibold">ODOP Marketplace</h5>

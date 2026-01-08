@@ -22,6 +22,9 @@ router.patch('/:product_id/availability', productController.toggleAvailability);
 // Adjust quantity (increment/decrement)
 router.patch('/:product_id/quantity', productController.adjustQuantity);
 
+// Product detail + sellers (buyer)
+router.get('/:product_id/sellers', productController.getProductSellers);
+
 // Get product by ID - must come last
 router.get('/:product_id', productController.getProductById);
 

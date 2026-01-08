@@ -1,8 +1,10 @@
 import React, { useState, Suspense } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import LoginComponent from './components/LoginComponent';
 import OnboardingComponent from './components/OnboardingComponent';
 import DashboardPage from './pages/DashboardPage';
+import ProductDetailPage from './pages/ProductDetailPage';
+import CartPage from './pages/CartPage';
 import UploadProductComponent from './components/UploadProductComponent';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminBot from './pages/AdminBot';
@@ -12,6 +14,8 @@ import './App.css';
 const ManageInventory = React.lazy(() => import('./components/ManageInventoryComponent'));
 
 function App() {
+  const navigate = useNavigate();
+  const location = useLocation();
   // Top-level hooks
   const [seller, setSeller] = useState(() => {
     const saved = localStorage.getItem('seller');
@@ -48,6 +52,13 @@ function App() {
     setUserRole(null);
     localStorage.removeItem('buyer');
     localStorage.removeItem('seller');
+    // Ensure the UI navigates back to the login/root route immediately
+    try {
+      navigate('/', { replace: true });
+    } catch (err) {
+      // fallback: in case navigate isn't available for any reason
+      window.location.pathname = '/';
+    }
   };
 
   const handleOtpVerified = (phone) => {
@@ -88,8 +99,23 @@ function App() {
     }
   };
 
+  const handleBackToLogin = () => {
+  // Fully reset session so App will render the LoginComponent again
+  setSeller(null);
+  setBuyer(null);
+    setPhoneVerified(null);
+    setUserRole(null);
+  localStorage.removeItem('buyer');
+  localStorage.removeItem('seller');
+    try {
+      navigate('/', { replace: true });
+    } catch (err) {
+      window.location.pathname = '/';
+    }
+  };
+
   // Admin Dashboard Route - Accessible independently
-  const currentPath = window.location.pathname;
+  const currentPath = location.pathname;
   if (currentPath.startsWith('/admin')) {
     return (
       <Routes>
@@ -119,7 +145,13 @@ function App() {
         <Routes>
           <Route
             path="/"
-            element={<RoleSelection phone={phoneVerified} onRoleSelect={handleRoleSelect} />}
+            element={
+              <RoleSelection
+                phone={phoneVerified}
+                onRoleSelect={handleRoleSelect}
+                onBackToLogin={handleBackToLogin}
+              />
+            }
           />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
@@ -133,7 +165,13 @@ function App() {
       <Routes>
         <Route
           path="/"
-          element={<RoleSelection phone={phoneVerified} onRoleSelect={handleRoleSelect} />}
+          element={
+            <RoleSelection
+              phone={phoneVerified}
+              onRoleSelect={handleRoleSelect}
+              onBackToLogin={handleBackToLogin}
+            />
+          }
         />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
