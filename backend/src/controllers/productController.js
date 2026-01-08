@@ -19,7 +19,7 @@ async function ensureColumns(connection) {
 // Upload product with image
 const uploadProduct = async (req, res) => {
   try {
-    const { vendor_id, name, description, price, category } = req.body;
+    const { vendor_id, name, description, price, category, quantity_per_month, certifications, packaging_type } = req.body;
 
     // Validate required fields
     if (!vendor_id || !name || !price || !category) {
@@ -48,9 +48,9 @@ const uploadProduct = async (req, res) => {
     try {
       // Insert product into database
       const [result] = await connection.execute(
-        `INSERT INTO products (vendor_id, name, description, price, category, image_path, created_at)
-         VALUES (?, ?, ?, ?, ?, ?, NOW())`,
-        [vendor_id, name.trim(), description || null, parseFloat(price), category.trim(), imagePath]
+        `INSERT INTO products (vendor_id, name, description, price, category, quantity_per_month, certifications, packaging_type, image_path, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+        [vendor_id, name.trim(), description || null, parseFloat(price), category.trim(), quantity_per_month || null, certifications || null, packaging_type || null, imagePath]
       );
 
       res.status(201).json({
@@ -64,6 +64,9 @@ const uploadProduct = async (req, res) => {
             description: description || null,
             price: parseFloat(price),
             category: category.trim(),
+            quantity_per_month: quantity_per_month || null,
+            certifications: certifications || null,
+            packaging_type: packaging_type || null,
             image_path: imagePath,
             created_at: new Date(),
             in_stock: true,

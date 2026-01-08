@@ -4,6 +4,8 @@ import LoginComponent from './components/LoginComponent';
 import OnboardingComponent from './components/OnboardingComponent';
 import DashboardPage from './pages/DashboardPage';
 import UploadProductComponent from './components/UploadProductComponent';
+import AdminDashboard from './pages/AdminDashboard';
+import AdminBot from './pages/AdminBot';
 import './App.css';
 
 const ManageInventory = React.lazy(() => import('./components/ManageInventoryComponent'));
@@ -29,7 +31,22 @@ function App() {
     localStorage.removeItem('seller');
   };
 
-  // Route logic based on seller state
+  // Admin Dashboard Route - Accessible independently
+  // Check if trying to access admin route
+  const currentPath = window.location.pathname;
+  if (currentPath.startsWith('/admin')) {
+    return (
+      <Router>
+        <Routes>
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/bot" element={<AdminBot />} />
+          <Route path="*" element={<Navigate to="/admin/dashboard" />} />
+        </Routes>
+      </Router>
+    );
+  }
+
+  // Route logic based on seller state (SELLER PORTAL)
   if (!seller) {
     return (
       <Routes>

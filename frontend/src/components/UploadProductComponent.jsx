@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import 'bootstrap-icons/font/bootstrap-icons.css';
+import apiConfig from '../config/api';
 
 export const UploadProductComponent = ({ seller, onLogout }) => {
   const navigate = useNavigate();
@@ -15,7 +16,10 @@ export const UploadProductComponent = ({ seller, onLogout }) => {
     name: '',
     description: '',
     price: '',
-    category: ''
+    category: '',
+    quantity_per_month: '',
+    certifications: [],
+    packaging_type: ''
   });
 
   const [selectedFile, setSelectedFile] = useState(null);
@@ -30,10 +34,36 @@ export const UploadProductComponent = ({ seller, onLogout }) => {
     'Leather', 'Ceramics', 'Other'
   ];
 
+  const certificationOptions = ['ZED', 'FSSAI', 'GI Tag'];
+
+  const packagingOptions = [
+    'LOOSE/OPEN (Open Sacks)',
+    'BASIC PACKED (Simple PP/plastic bags)',
+    'SEALED(FOOD-GRADE) (Heat-sealed, hygenic)',
+    'VACCUM SEALED (oxygen free)',
+    'RETAIL READY (branded, labeled packs)'
+  ];
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
+  };
+
+  const handleCertificationChange = (cert) => {
+    setFormData((prev) => ({
+      ...prev,
+      certifications: prev.certifications.includes(cert)
+        ? prev.certifications.filter((c) => c !== cert)
+        : [...prev.certifications, cert]
+    }));
+  };
+
+  const handlePackagingChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      packaging_type: e.target.value
+    }));
   };
 
   const handleFileChange = (e) => {
@@ -64,18 +94,32 @@ export const UploadProductComponent = ({ seller, onLogout }) => {
 
     setLoading(true);
     try {
-      const data = new FormData();
-      data.append('vendor_id', sellerId);
-      data.append('name', formData.name);
-      data.append('description', formData.description);
-      data.append('price', formData.price);
-      data.append('category', formData.category);
-      data.append('image', selectedFile);
+      // Create FormData for multipart/form-data
+      const formDataToSend = new FormData();
+      formDataToSend.append('vendor_id', sellerId);
+      formDataToSend.append('name', formData.name.trim());
+      formDataToSend.append('description', formData.description.trim());
+      formDataToSend.append('price', formData.price);
+      formDataToSend.append('category', formData.category);
+      formDataToSend.append('image', selectedFile);
 
-      const res = await api.post('/products', data);
-      if (res.data?.success) {
-        setSuccessMessage('Product uploaded successfully');
-        setFormData({ name: '', description: '', price: '', category: '' });
+      const response = await api.post('/products', formDataToSend);
+
+      if (response.data && response.data.success) {
+        setSuccessMessage('Product uploaded successfully! 🎉');
+        
+        // Add to uploaded products list
+        if (response.data.data && response.data.data.product) {
+          setUploadedProducts((prev) => [response.data.data.product, ...prev]);
+        }
+
+        // Reset form
+        setFormData({
+          name: '',
+          description: '',
+          price: '',
+          category: ''
+        });
         setSelectedFile(null);
         setImagePreview(null);
       }
@@ -188,20 +232,27 @@ export const UploadProductComponent = ({ seller, onLogout }) => {
                       {errors.price && <div className="invalid-feedback">{errors.price}</div>}
                     </div>
 
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Category *</label>
-                      <select
-                        className={`form-select ${errors.category ? 'is-invalid' : ''}`}
-                        name="category"
-                        value={formData.category}
-                        onChange={handleInputChange}
-                      >
-                        <option value="">Select category</option>
-                        {categories.map(c => <option key={c}>{c}</option>)}
-                      </select>
-                      {errors.category && <div className="invalid-feedback">{errors.category}</div>}
-                    </div>
-                  </div>
+            {/* Category */}
+            <div className="form-group">
+              <label htmlFor="category">Category *</label>
+              <select
+                id="category"
+                name="category"
+                value={formData.category}
+                onChange={handleInputChange}
+                disabled={loading}
+                className={errors.category ? 'error' : ''}
+              >
+                <option value="">Select a category</option>
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+              {errors.category && <span className="error-text">{errors.category}</span>}
+            </div>
+          </div>
 
                   {/* IMAGE UPLOAD */}
                   <div className="mb-4">
@@ -225,23 +276,53 @@ export const UploadProductComponent = ({ seller, onLogout }) => {
                     </div>
                   )}
 
-                  {/* SUBMIT */}
-                  <button
-  type="submit"
-  className="btn w-100 text-white"
-  disabled={loading}
-  style={{
-    background: 'linear-gradient(90deg, #1a237e, #2e7d32)',
-    border: 'none',
-    padding: '12px',
-    fontWeight: 600
-  }}
->
-  {loading ? 'Uploading…' : 'Upload Product'}
-</button>
+          {/* Submit Button */}
+          <button
+            type="submit"
+            className="submit-btn"
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <span className="spinner"></span>
+                Uploading...
+              </>
+            ) : (
+              'Upload Product'
+            )}
+          </button>
+        </form>
+      </div>
 
-                </form>
-
+      {/* Uploaded Products List */}
+      {uploadedProducts.length > 0 && (
+        <div className="products-list-container">
+          <h2>Your Products ({uploadedProducts.length})</h2>
+          <div className="products-grid">
+            {uploadedProducts.map((product) => (
+              <div key={product.id} className="product-card">
+                {product.image_path && (
+                  <div className="product-image">
+                    <img
+                      src={product.image_path}
+                      alt={product.name}
+                      onError={(e) => {
+                        e.target.src = 'https://via.placeholder.com/200?text=No+Image';
+                      }}
+                    />
+                  </div>
+                )}
+                <div className="product-info">
+                  <h3>{product.name}</h3>
+                  <p className="category">{product.category}</p>
+                  <p className="price">₹ {parseFloat(product.price).toFixed(2)}</p>
+                  {product.description && (
+                    <p className="description">{product.description.substring(0, 100)}...</p>
+                  )}
+                  <span className="date">
+                    {new Date(product.created_at).toLocaleDateString()}
+                  </span>
+                </div>
               </div>
             </div>
 
