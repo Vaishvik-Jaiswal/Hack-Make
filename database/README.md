@@ -58,4 +58,4 @@ mysql -u root -p odop_marketplace < seed.sql
 
 ## Valid Districts
 - Indore, Bhopal, Jabalpur, Ujjain, Gwalior
-- And 27 other districts in Madhya Pradesh (see validators.js)
+- And 45 other districts in Madhya Pradesh (see validators.js)

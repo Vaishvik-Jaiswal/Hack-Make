@@ -139,7 +139,7 @@ curl -X PUT http://localhost:5000/api/seller/1/profile \
     "shop_name":"My Shop",
     "artisan_name":"John Doe",
     "district":"Indore",
-    "udyam_number":"UD12AB1234567"
+    "udyam_number":"UD12345678901"
   }'
 ```
 
@@ -164,12 +164,12 @@ curl -X PUT http://localhost:5000/api/seller/1/profile \
 - Required for profile completion
 
 ### Udyam Number
-- Format: UDxxxx0000000 (starts with UD, followed by alphanumeric)
+- Format: UDddddddddddd (starts with UD, followed by 11 digits)
 - 12 characters total
 
 ### District
 - Must be from valid Madhya Pradesh districts list
-- 32 districts supported
+- 52 districts supported
 
 ## Error Handling
 

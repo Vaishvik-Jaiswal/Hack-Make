@@ -386,7 +386,6 @@ export const UploadProductComponent = ({ seller, onLogout }) => {
                     {new Date(product.created_at).toLocaleDateString()}
                   </span>
                 </div>
-
               </div>
             ))}
           </div>

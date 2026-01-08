@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { sendOTP, verifyOTP } from '../services/authService';
 import AshokaChakraIcon from './icons/AshokaChakraIcon';
 
-const LoginComponent = ({ onLoginSuccess }) => {
+const LoginComponent = ({ onOtpVerified }) => {
   const [step, setStep] = useState('phone');
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
@@ -38,18 +38,25 @@ const LoginComponent = ({ onLoginSuccess }) => {
     }
   };
 
+  // Prevent double submission
+  const [otpSubmitted, setOtpSubmitted] = useState(false);
   const handleOtpSubmit = async (e) => {
     e.preventDefault();
     if (otp.length !== 6) {
       setError('Please enter the 6-digit OTP.');
       return;
     }
+    if (otpSubmitted) return; // Prevent double call
+    setOtpSubmitted(true);
     setLoading(true);
     try {
       const res = await verifyOTP(phone, otp);
-      onLoginSuccess(res.data.data.seller);
+      setError('');
+      if (onOtpVerified) onOtpVerified(phone); // set phoneVerified in App
+      // Removed: onLoginSuccess(res.data.data.seller); - this bypasses role selection
     } catch (err) {
       setError(err.response?.data?.message || 'Invalid OTP.');
+      setOtpSubmitted(false); // Allow retry on error
     } finally {
       setLoading(false);
     }

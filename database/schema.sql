@@ -1,4 +1,56 @@
--- Create ODOP Marketplace Database Schema
+-- Create ODOP Marketplace Database Schema for Buyers
+
+-- Create buyers table
+
+CREATE TABLE IF NOT EXISTS buyers (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+
+  phone VARCHAR(10) UNIQUE NOT NULL,
+  name VARCHAR(100),
+  email VARCHAR(100),
+
+  org_type ENUM(
+    'INDIVIDUAL',
+    'PROPRIETORSHIP',
+    'PARTNERSHIP',
+    'COMPANY',
+    'CO_OPERATIVE',
+    'JOINT_VENTURE',
+    'TRUST',
+    'SOCIETY',
+    'LLP',
+    'PSU_CENTRAL',
+    'PSU_STATE',
+    'NOT_REGISTERED_IN_INDIA'
+  ) NOT NULL,
+
+  gst_no VARCHAR(15),
+  district_name VARCHAR(50),
+
+  is_profile_complete BOOLEAN DEFAULT false,
+
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+  INDEX idx_phone (phone),
+  INDEX idx_district_name (district_name),
+  INDEX idx_is_profile_complete (is_profile_complete)
+);
+
+
+-- Create products table
+CREATE TABLE IF NOT EXISTS products_buyer (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(255) NOT NULL,
+  description TEXT,
+  category VARCHAR(100),
+  base_district VARCHAR(50) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  INDEX idx_category (category),
+  INDEX idx_base_district (base_district),
+  INDEX idx_created_at (created_at)
+);
 
 -- Create sellers table
 CREATE TABLE IF NOT EXISTS sellers (

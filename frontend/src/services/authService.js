@@ -5,7 +5,7 @@ export const sendOTP = (phone) => {
   return api.post('/auth/send-otp', { phone });
 };
 
-// Verify OTP and authenticate user
+// Verify OTP (just validate, don't create user)
 export const verifyOTP = (phone, otp) => {
   return api.post('/auth/verify-otp', { phone, otp });
 };

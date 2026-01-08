@@ -1,4 +1,5 @@
 /* Login Component Styles */
+/* Login Component Styles
 
 .login-container {
   display: flex;
@@ -177,5 +178,207 @@
 
   .login-card h2 {
     font-size: 18px;
+  }
+} */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background: linear-gradient(180deg, #f4f8fc 0%, #eef5f0 100%);
+}
+
+/* Main Page */
+.odop-login-page {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Header */
+.odop-header {
+  text-align: center;
+  margin-top: 40px;
+  margin-bottom: 30px;
+}
+
+.odop-logo {
+  width: 48px;
+  margin-bottom: 10px;
+}
+
+.odop-header h1 {
+  font-size: 24px;
+  color: #1f3c88;
+  font-weight: 600;
+}
+
+.odop-header p {
+  font-size: 14px;
+  color: #555;
+  margin-top: 4px;
+}
+
+/* Card Wrapper */
+.odop-card {
+  width: 90%;
+  max-width: 1100px; /* FULL PAGE FEEL */
+  min-height: 420px;
+  background: #ffffff;
+  border-radius: 6px;
+  display: flex;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+}
+
+/* Left Panel */
+.odop-left {
+  flex: 1;
+  padding: 40px;
+  background: linear-gradient(180deg, #1f3c88 0%, #2e7d32 100%);
+  color: #ffffff;
+}
+
+.odop-left h2 {
+  font-size: 22px;
+  margin-bottom: 15px;
+}
+
+.odop-left p {
+  font-size: 14px;
+  line-height: 1.6;
+  opacity: 0.95;
+}
+
+.odop-left ul {
+  margin-top: 25px;
+  padding-left: 18px;
+}
+
+.odop-left li {
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+/* Right Panel */
+.odop-right {
+  flex: 1;
+  padding: 40px;
+}
+
+.odop-right h3 {
+  font-size: 20px;
+  margin-bottom: 6px;
+  color: #222;
+}
+
+.subtext {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 25px;
+}
+
+.odop-right label {
+  font-size: 14px;
+  margin-bottom: 6px;
+  display: block;
+  color: #333;
+}
+
+/* Mobile Input */
+.mobile-input {
+  display: flex;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.mobile-input span {
+  background: #f2f2f2;
+  padding: 12px 14px;
+  border-right: 1px solid #ccc;
+  font-size: 14px;
+}
+
+.mobile-input input,
+.odop-right input {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  outline: none;
+  font-size: 14px;
+}
+
+/* Buttons */
+.odop-right button {
+  width: 100%;
+  padding: 12px;
+  background: #66a3ff;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.odop-right button:hover:not(:disabled) {
+  background: #4d8cff;
+}
+
+.odop-right button:disabled {
+  background: #cfd8dc;
+  cursor: not-allowed;
+}
+
+.back-btn {
+  background: #e0e0e0 !important;
+  color: #333 !important;
+  margin-top: 10px;
+}
+
+/* Messages */
+.error-message {
+  background: #fdecea;
+  border: 1px solid #f5c6cb;
+  color: #b71c1c;
+  padding: 10px;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.success-message {
+  background: #e8f5e9;
+  border: 1px solid #c8e6c9;
+  color: #2e7d32;
+  padding: 10px;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+/* Footer */
+.odop-footer {
+  margin-top: auto;
+  padding: 20px 10px;
+  font-size: 12px;
+  color: #666;
+  text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .odop-card {
+    flex-direction: column;
+    width: 95%;
+  }
+
+  .odop-left {
+    text-align: center;
   }
 }

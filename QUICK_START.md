@@ -66,7 +66,7 @@ npm run dev
    - Shop Name: `My Artisan Shop`
    - Artisan Name: `Your Name`
    - District: `Indore`
-   - Udyam: `UD12AB1234567`
+   - Udyam: `UD12345678901`
 7. Click "Complete Profile"
 8. See Dashboard!
 

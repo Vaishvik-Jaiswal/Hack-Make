@@ -6,33 +6,89 @@ import DashboardPage from './pages/DashboardPage';
 import UploadProductComponent from './components/UploadProductComponent';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminBot from './pages/AdminBot';
+import RoleSelection from './components/RoleSelection';
 import './App.css';
 
 const ManageInventory = React.lazy(() => import('./components/ManageInventoryComponent'));
 
 function App() {
+  // Top-level hooks
   const [seller, setSeller] = useState(() => {
     const saved = localStorage.getItem('seller');
     return saved ? JSON.parse(saved) : null;
   });
+  const [buyer, setBuyer] = useState(() => {
+    const saved = localStorage.getItem('buyer');
+    return saved ? JSON.parse(saved) : null;
+  });
+  const [phoneVerified, setPhoneVerified] = useState(null);
+  const [userRole, setUserRole] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLoginSuccess = (sellerData) => {
-    setSeller(sellerData);
-    localStorage.setItem('seller', JSON.stringify(sellerData));
+  // Handlers
+  const handleProfileComplete = (updatedSeller) => {
+    setSeller(updatedSeller);
+    localStorage.setItem('seller', JSON.stringify(updatedSeller));
   };
 
-  const handleProfileComplete = (updatedSeller) => {
+  const handleBuyerProfileComplete = (updatedBuyer) => {
+    setBuyer(updatedBuyer);
+    localStorage.setItem('buyer', JSON.stringify(updatedBuyer));
+  };
+
+  const handleSellerProfileComplete = (updatedSeller) => {
     setSeller(updatedSeller);
     localStorage.setItem('seller', JSON.stringify(updatedSeller));
   };
 
   const handleLogout = () => {
     setSeller(null);
+    setBuyer(null);
+    setPhoneVerified(null);
+    setUserRole(null);
+    localStorage.removeItem('buyer');
     localStorage.removeItem('seller');
   };
 
+  const handleOtpVerified = (phone) => {
+    setPhoneVerified(phone);
+  };
+
+  const handleRoleSelect = async (role) => {
+    setUserRole(role);
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          phone: phoneVerified,
+          role: role,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to login');
+      }
+
+      const result = await response.json();
+      const user = result.data.user;
+
+      if (role === 'buyer') {
+        setBuyer(user);
+        localStorage.setItem('buyer', JSON.stringify(user));
+      } else {
+        setSeller(user);
+        localStorage.setItem('seller', JSON.stringify(user));
+      }
+    } catch (error) {
+      console.error('Error logging in:', error);
+      alert('Error logging in. Please try again.');
+    }
+  };
+
   // Admin Dashboard Route - Accessible independently
-  // Check if trying to access admin route
   const currentPath = window.location.pathname;
   if (currentPath.startsWith('/admin')) {
     return (
@@ -44,55 +100,142 @@ function App() {
     );
   }
 
-  // Route logic based on seller state (SELLER PORTAL)
-  if (!seller) {
+  // SELLER PORTAL: If not logged in
+  if (!seller && !buyer) {
+    if (!phoneVerified) {
+      // Show phone/OTP screen
+      return (
+        <Routes>
+          <Route
+            path="/"
+            element={<LoginComponent onOtpVerified={handleOtpVerified} />}
+          />
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      );
+    } else {
+      // Show role selection after OTP
+      return (
+        <Routes>
+          <Route
+            path="/"
+            element={<RoleSelection phone={phoneVerified} onRoleSelect={handleRoleSelect} />}
+          />
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      );
+    }
+  }
+
+  // Role not selected
+  if (!userRole) {
     return (
       <Routes>
         <Route
           path="/"
-          element={<LoginComponent onLoginSuccess={handleLoginSuccess} />}
+          element={<RoleSelection phone={phoneVerified} onRoleSelect={handleRoleSelect} />}
         />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     );
   }
 
-  if (!seller.is_profile_complete) {
+  // Buyer logic
+  if (userRole === 'buyer') {
+    if (!buyer || !buyer.phone) {
+      return (
+        <Routes>
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      );
+    }
+
+    if (!buyer.is_profile_complete) {
+      return (
+        <Routes>
+          <Route
+            path="/onboarding"
+            element={
+              <OnboardingComponent
+                buyer={buyer}
+                onProfileComplete={handleBuyerProfileComplete}
+              />
+            }
+          />
+          <Route path="*" element={<Navigate to="/onboarding" />} />
+        </Routes>
+      );
+    }
+
     return (
       <Routes>
         <Route
-          path="/seller/onboarding"
-          element={
-            <OnboardingComponent
-              seller={seller}
-              onProfileComplete={handleProfileComplete}
-            />
-          }
+          path="/dashboard"
+          element={<DashboardPage buyer={buyer} onLogout={handleLogout} />}
         />
-        <Route path="*" element={<Navigate to="/seller/onboarding" />} />
+        <Route
+          path="/product/:id"
+          element={<ProductDetailPage buyer={buyer} />}
+        />
+        <Route
+          path="/cart"
+          element={<CartPage buyer={buyer} />}
+        />
+        <Route path="*" element={<Navigate to="/dashboard" />} />
       </Routes>
     );
   }
 
-  return (
-    <Suspense fallback={<div className="p-6">Loading…</div>}>
-      <Routes>
-        <Route
-          path="/seller/dashboard"
-          element={<DashboardPage seller={seller} onLogout={handleLogout} />}
-        />
-        <Route
-          path="/seller/upload-product"
-          element={<UploadProductComponent seller={seller} onLogout={handleLogout} />}
-        />
-        <Route
-          path="/seller/manage-inventory"
-          element={<ManageInventory seller={seller} />}
-        />
-        <Route path="*" element={<Navigate to="/seller/dashboard" />} />
-      </Routes>
-    </Suspense>
-  );
+  // Seller logic
+  if (userRole === 'seller') {
+    if (!seller || !seller.phone) {
+      return (
+        <Routes>
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      );
+    }
+
+    if (!seller.is_profile_complete) {
+      return (
+        <Routes>
+          <Route
+            path="/seller/onboarding"
+            element={
+              <OnboardingComponent
+                seller={seller}
+                onProfileComplete={handleSellerProfileComplete}
+              />
+            }
+          />
+          <Route path="*" element={<Navigate to="/seller/onboarding" />} />
+        </Routes>
+      );
+    }
+
+    return (
+      <Suspense fallback={<div className="p-6">Loading…</div>}>
+        <Routes>
+          <Route
+            path="/seller/dashboard"
+            element={<DashboardPage seller={seller} onLogout={handleLogout} />}
+          />
+          <Route
+            path="/seller/upload-product"
+            element={<UploadProductComponent seller={seller} onLogout={handleLogout} />}
+          />
+          <Route
+            path="/seller/manage-inventory"
+            element={<ManageInventory seller={seller} />}
+          />
+          <Route path="*" element={<Navigate to="/seller/dashboard" />} />
+        </Routes>
+      </Suspense>
+    );
+  }
+
+  // Default fallback
+  return <div>Unknown state</div>;
 }
 
 export default App;

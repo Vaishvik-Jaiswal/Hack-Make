@@ -209,7 +209,7 @@ Content-Type: application/json
   "shop_name": "Artisan Shop",
   "artisan_name": "John Doe",
   "district": "Indore",
-  "udyam_number": "UD12AB1234567"
+  "udyam_number": "UD12345678901"
 }
 
 Response:
@@ -244,7 +244,7 @@ Response:
       "shop_name": "Artisan Shop",
       "artisan_name": "John Doe",
       "district": "Indore",
-      "udyam_number": "UD12AB1234567",
+      "udyam_number": "UD12345678901",
       "is_profile_complete": true,
       "created_at": "2024-01-05T10:00:00Z"
     }
@@ -263,7 +263,7 @@ Response:
 
 ### Profile Management
 - ✅ Shop name and artisan name collection
-- ✅ District selection (32 Madhya Pradesh districts)
+- ✅ District selection (52 Madhya Pradesh districts)
 - ✅ Udyam registration number validation
 - ✅ Profile completion tracking
 - ✅ Data validation and error handling
