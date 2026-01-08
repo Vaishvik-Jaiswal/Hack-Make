@@ -13,6 +13,15 @@ router.get('/vendor/:vendor_id', productController.getVendorProducts);
 // Get all products (with pagination and filtering) - must come before /:product_id
 router.get('/', productController.getAllProducts);
 
+// Update product (price/description)
+router.put('/:product_id', productController.updateProduct);
+
+// Toggle availability
+router.patch('/:product_id/availability', productController.toggleAvailability);
+
+// Adjust quantity (increment/decrement)
+router.patch('/:product_id/quantity', productController.adjustQuantity);
+
 // Get product by ID - must come last
 router.get('/:product_id', productController.getProductById);
 

@@ -26,3 +26,28 @@ select,
 textarea {
   font-family: inherit;
 }
+
+.toast {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  background: #323232;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 6px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+  z-index: 1000;
+  opacity: 0.95;
+  transition: transform 200ms ease, opacity 200ms ease;
+}
+
+/* Inventory helpers */
+.card-hover { transition: transform 140ms ease, box-shadow 140ms ease; }
+.card-hover:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(2,6,23,0.08); }
+.toggle { display: inline-flex; align-items: center; cursor: pointer; }
+.toggle input { display: none; }
+.toast-item { padding: 10px 14px; border-radius: 6px; color: #fff; }
+.lightbox-img { max-width: 100%; max-height: 80vh; }
+.modal-backdrop { position: fixed; inset:0; background: rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center; z-index:50; }
+.modal { background:#fff; padding:16px; border-radius:8px; max-width:600px; width:100%; }
+

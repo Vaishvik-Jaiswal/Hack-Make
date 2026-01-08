@@ -1,18 +1,18 @@
-import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useState, Suspense } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import LoginComponent from './components/LoginComponent';
 import OnboardingComponent from './components/OnboardingComponent';
 import DashboardPage from './pages/DashboardPage';
 import UploadProductComponent from './components/UploadProductComponent';
 import './App.css';
 
+const ManageInventory = React.lazy(() => import('./components/ManageInventoryComponent'));
+
 function App() {
   const [seller, setSeller] = useState(() => {
     const saved = localStorage.getItem('seller');
     return saved ? JSON.parse(saved) : null;
   });
-
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleLoginSuccess = (sellerData) => {
     setSeller(sellerData);
@@ -32,39 +32,35 @@ function App() {
   // Route logic based on seller state
   if (!seller) {
     return (
-      <Router>
-        <Routes>
-          <Route
-            path="/"
-            element={<LoginComponent onLoginSuccess={handleLoginSuccess} />}
-          />
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
-      </Router>
+      <Routes>
+        <Route
+          path="/"
+          element={<LoginComponent onLoginSuccess={handleLoginSuccess} />}
+        />
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
     );
   }
 
   if (!seller.is_profile_complete) {
     return (
-      <Router>
-        <Routes>
-          <Route
-            path="/seller/onboarding"
-            element={
-              <OnboardingComponent
-                seller={seller}
-                onProfileComplete={handleProfileComplete}
-              />
-            }
-          />
-          <Route path="*" element={<Navigate to="/seller/onboarding" />} />
-        </Routes>
-      </Router>
+      <Routes>
+        <Route
+          path="/seller/onboarding"
+          element={
+            <OnboardingComponent
+              seller={seller}
+              onProfileComplete={handleProfileComplete}
+            />
+          }
+        />
+        <Route path="*" element={<Navigate to="/seller/onboarding" />} />
+      </Routes>
     );
   }
 
   return (
-    <Router>
+    <Suspense fallback={<div className="p-6">Loading…</div>}>
       <Routes>
         <Route
           path="/seller/dashboard"
@@ -74,9 +70,13 @@ function App() {
           path="/seller/upload-product"
           element={<UploadProductComponent seller={seller} onLogout={handleLogout} />}
         />
+        <Route
+          path="/seller/manage-inventory"
+          element={<ManageInventory seller={seller} />}
+        />
         <Route path="*" element={<Navigate to="/seller/dashboard" />} />
       </Routes>
-    </Router>
+    </Suspense>
   );
 }
 

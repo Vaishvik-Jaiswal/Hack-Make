@@ -51,6 +51,8 @@ CREATE TABLE IF NOT EXISTS products (
   price DECIMAL(10, 2) NOT NULL,
   category VARCHAR(100),
   image_path VARCHAR(255),
+  in_stock BOOLEAN DEFAULT true,
+  quantity INT DEFAULT 0,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   
   FOREIGN KEY (vendor_id) REFERENCES sellers(id) ON DELETE CASCADE,
@@ -58,3 +60,10 @@ CREATE TABLE IF NOT EXISTS products (
   INDEX idx_category (category),
   INDEX idx_created_at (created_at)
 );
+
+-- Migration note: if your database was created before this change, run:
+-- ALTER TABLE products ADD COLUMN IF NOT EXISTS in_stock BOOLEAN NOT NULL DEFAULT true;
+-- ALTER TABLE products ADD COLUMN IF NOT EXISTS quantity INT NOT NULL DEFAULT 0;
+
+-- Migration note: if your database was created before this change, run:
+-- ALTER TABLE products ADD COLUMN IF NOT EXISTS in_stock BOOLEAN NOT NULL DEFAULT true;
