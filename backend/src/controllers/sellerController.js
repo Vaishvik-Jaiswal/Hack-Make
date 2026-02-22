@@ -38,7 +38,7 @@ exports.createProfile = async (req, res) => {
     if (!udyam_number || !isValidUdyamNumber(udyam_number)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid Udyam number format. Must be in format: UDddddddddddd (UD followed by 11 digits)',
+        message: 'Invalid Udyam number format. Must be UD followed by 10 letters or digits (e.g. UD1234AB5670)',
       });
     }
 
@@ -160,7 +160,7 @@ exports.updateProfile = async (req, res) => {
     if (!udyam_number || !isValidUdyamNumber(udyam_number)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid Udyam number format. Must be in format: UDxxxx0000000',
+        message: 'Invalid Udyam number format. Must be UD followed by 10 letters or digits (e.g. UD1234AB5670)',
       });
     }
 

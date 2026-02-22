@@ -19,7 +19,7 @@ function isValidArtisanName(artisanName) {
   return artisanName && artisanName.trim().length >= 2 && artisanName.trim().length <= 100;
 }
 
-// Validate Udyam number format (should be 12 characters: UDxxxx0000000)
+// Validate Udyam number format (12 chars: UD + 10 alphanumeric, e.g. UD1234AB5670)
 function isValidUdyamNumber(udyamNumber) {
   const udyamRegex = /^UD[A-Z0-9]{10}$/;
   return udyamRegex.test(udyamNumber.toUpperCase());

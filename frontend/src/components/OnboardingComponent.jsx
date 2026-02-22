@@ -115,9 +115,9 @@ export const OnboardingComponent = ({ buyer, seller, onProfileComplete }) => {
         newErrors.district = 'Please select a district';
       }
 
-      const udyamRegex = /^UD\d{11}$/;
-      if (!formData.udyam_number || !udyamRegex.test(formData.udyam_number)) {
-        newErrors.udyam_number = 'Invalid Udyam number (format: UD followed by 11 digits)';
+      const udyamRegex = /^UD[A-Z0-9]{10}$/;
+      if (!formData.udyam_number || !udyamRegex.test(formData.udyam_number.toUpperCase())) {
+        newErrors.udyam_number = 'Invalid Udyam number (format: UD followed by 10 letters or digits)';
       }
     } else {
       if (!formData.name || formData.name.trim().length < 2) {
